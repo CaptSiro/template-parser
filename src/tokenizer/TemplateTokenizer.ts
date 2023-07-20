@@ -24,8 +24,7 @@ export class TemplateTokenizer {
     private position: number = 0;
     private readPosition: number = 0;
     private char: string = "\0";
-
-    constructor(private input: string) {}
+    private input: string = "";
 
     private readChar() {
         if (this.readPosition >= this.input.length) {
@@ -65,7 +64,8 @@ export class TemplateTokenizer {
         }
     }
 
-    getTokens(): Token[] {
+    tokenize(input: string): Token[] {
+        this.input = input;
         const tokens: Token[] = [];
 
         while (true) {

@@ -34,14 +34,14 @@ export type ConfigSuccess = {
 
 export class TemplateParser {
     private readonly identifiers: string[];
+    private readonly tokenizer = new TemplateTokenizer();
 
     constructor(identifiers: string[]) {
         this.identifiers = identifiers;
     }
 
     parse(input: string): ConfigError | ConfigSuccess {
-        const tokenizer = new TemplateTokenizer(input);
-        const tokens = tokenizer.getTokens();
+        const tokens = this.tokenizer.tokenize(input);
         const config: ConfigItem[] = [];
 
         for (let i = 0; i < tokens.length; i++) {
