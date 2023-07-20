@@ -1,11 +1,7 @@
-import { Token, TemplateTokenizer, Tokens } from "../tokenizer/TemplateTokenizer";
+import { TemplateTokenizer, Tokens } from "../tokenizer/TemplateTokenizer";
 import { closest } from "fastest-levenshtein";
 
-type IdentToken = {
-    type: "IDENT",
-    literal: string,
-    position: number,
-}
+
 
 export type ConfigItem = {
     type: "TEXT" | "IDENT",
