@@ -1,9 +1,11 @@
-import { Token, Tokenizer, Tokens } from "../tokenizer/Tokenizer";
+import { Token, TemplateTokenizer, Tokens } from "../tokenizer/TemplateTokenizer";
 
 type IdentToken = {
     type: "IDENT",
     literal: string
 }
+
+export type Config = (Token | IdentToken)[];
 
 export type ConfigError = {
     type: "error",
@@ -14,7 +16,7 @@ export type ConfigError = {
 
 export type ConfigSuccess = {
     type: "success",
-    config: (Token | IdentToken)[]
+    config: Config
 }
 
 function createIdent(literal: string): IdentToken {
@@ -26,12 +28,12 @@ function createIdent(literal: string): IdentToken {
 
 
 
-export class Parser {
-    private tokenizer: Tokenizer;
+export class TemplateParser {
+    private tokenizer: TemplateTokenizer;
     private identifiers: string[];
 
     constructor(input: string, identifiers: string[]) {
-        this.tokenizer = new Tokenizer(input);
+        this.tokenizer = new TemplateTokenizer(input);
         this.identifiers = identifiers;
     }
 

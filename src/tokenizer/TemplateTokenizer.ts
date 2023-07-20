@@ -19,7 +19,7 @@ function createToken(type: TokenItem, literal: string): Token {
 
 
 
-export class Tokenizer {
+export class TemplateTokenizer {
     private position: number = 0;
     private readPosition: number = 0;
     private char: string = "\0";
