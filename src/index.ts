@@ -8,8 +8,8 @@ function main() {
     // use backslash '\' to escape bracket (it does not need to be escaped to use it as standalone character)
     const input = "\\{{USER_NAME}\\}: {USER_EMAIL}\\"
 
-    // creating a parser object, that takes all identifiers as a second argument
-    const parser = new TemplateParser(input, [
+    // creating a parser object, that takes all identifiers as an argument
+    const parser = new TemplateParser([
         "USER_NAME",
         "USER_EMAIL"
     ]);
@@ -17,7 +17,7 @@ function main() {
     // returns typed object
     //   type: "error" -> contains error object with a message and optional suggestion
     //   type: "success" -> contains config object
-    const result = parser.getTemplateConfig();
+    const result = parser.parse(input);
 
     if (result.type === "error") {
         // handle error

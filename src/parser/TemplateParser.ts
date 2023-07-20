@@ -33,16 +33,15 @@ export type ConfigSuccess = {
 
 
 export class TemplateParser {
-    private readonly tokenizer: TemplateTokenizer;
     private readonly identifiers: string[];
 
-    constructor(input: string, identifiers: string[]) {
-        this.tokenizer = new TemplateTokenizer(input);
+    constructor(identifiers: string[]) {
         this.identifiers = identifiers;
     }
 
-    getTemplateConfig(): ConfigError | ConfigSuccess {
-        const tokens = this.tokenizer.getTokens();
+    parse(input: string): ConfigError | ConfigSuccess {
+        const tokenizer = new TemplateTokenizer(input);
+        const tokens = tokenizer.getTokens();
         const config: ConfigItem[] = [];
 
         for (let i = 0; i < tokens.length; i++) {
