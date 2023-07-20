@@ -1,36 +1,40 @@
 import { Token, TemplateTokenizer, Tokens } from "../tokenizer/TemplateTokenizer";
+import { closest } from "fastest-levenshtein";
 
 type IdentToken = {
     type: "IDENT",
-    literal: string
+    literal: string,
+    position: number,
 }
 
-export type Config = (Token | IdentToken)[];
+export type ConfigItem = {
+    type: "TEXT" | "IDENT",
+    literal: string
+}
 
 export type ConfigError = {
     type: "error",
     error: {
-        message: string
+        message: string,
+        suggestion?: {
+            start: number,
+            end: number,
+            replacement: string,
+            description: string
+        }
     }
 }
 
 export type ConfigSuccess = {
     type: "success",
-    config: Config
-}
-
-function createIdent(literal: string): IdentToken {
-    return {
-        type: "IDENT",
-        literal
-    };
+    config: ConfigItem[]
 }
 
 
 
 export class TemplateParser {
-    private tokenizer: TemplateTokenizer;
-    private identifiers: string[];
+    private readonly tokenizer: TemplateTokenizer;
+    private readonly identifiers: string[];
 
     constructor(input: string, identifiers: string[]) {
         this.tokenizer = new TemplateTokenizer(input);
@@ -39,7 +43,7 @@ export class TemplateParser {
 
     getTemplateConfig(): ConfigError | ConfigSuccess {
         const tokens = this.tokenizer.getTokens();
-        const config: (Token | IdentToken)[] = [];
+        const config: ConfigItem[] = [];
 
         for (let i = 0; i < tokens.length; i++) {
             switch (tokens[i].type) {
@@ -50,32 +54,53 @@ export class TemplateParser {
                         return {
                             type: "error",
                             error: {
-                                message: "Invalid identifier expression"
+                                message: "Invalid identifier expression",
+                                suggestion: {
+                                    start: tokens[i].position,
+                                    end: tokens[i].position + tokens[i].literal.length,
+                                    description: "Remove '{'.",
+                                    replacement: ""
+                                }
                             }
                         };
                     }
 
                     if (!this.identifiers.includes(tokens[i + 1].literal)) {
+                        const closestIdent = closest(tokens[i].literal, this.identifiers);
                         return {
                             type: "error",
                             error: {
-                                message: "Unknown identifier"
+                                message: "Unknown identifier",
+                                suggestion: {
+                                    start: tokens[i + 1].position,
+                                    end: tokens[i + 1].position + tokens[i + 1].literal.length,
+                                    description: `Use '${closestIdent}' identifier.`,
+                                    replacement: closestIdent
+                                }
                             }
                         };
                     }
 
-                    config.push(createIdent(tokens[i + 1].literal));
+                    config.push({
+                        type: "IDENT",
+                        literal: tokens[i + 1].literal
+                    });
+
                     i += 2;
+
                     break;
                 }
                 case "TEXT":
-                    config.push(tokens[i]);
+                    config.push({
+                        type: "TEXT",
+                        literal: tokens[i].literal
+                    });
                     break;
                 case "ILLEGAL":
                     return {
                         type: "error",
                         error: {
-                            message: `Illegal token '${tokens[i].literal}'`
+                            message: `Illegal token '${tokens[i].literal}'`,
                         }
                     };
             }

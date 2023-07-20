@@ -10,11 +10,12 @@ type TokenItem = typeof Tokens[keyof typeof Tokens];
 
 export type Token = {
     type: TokenItem,
-    literal: string;
+    literal: string,
+    position: number,
 }
 
-function createToken(type: TokenItem, literal: string): Token {
-    return { type, literal };
+function createToken(type: TokenItem, literal: string, position: number): Token {
+    return { type, literal, position };
 }
 
 
@@ -49,18 +50,18 @@ export class TemplateTokenizer {
 
         let token: Token;
         switch (this.char) {
-            case "\0": return createToken(Tokens.EOF, this.char);
+            case "\0": return createToken(Tokens.EOF, this.char, this.position);
             case "\\":
                 const next = this.peek();
                 if (next === "{" || next === "}") {
                     this.readChar();
-                    return createToken(Tokens.Text, this.char);
+                    return createToken(Tokens.Text, this.char, this.position);
                 }
 
-                return createToken(Tokens.Text, this.char);
-            case "{": return createToken(Tokens.LeftSquirly, this.char);
-            case "}": return createToken(Tokens.RightSquirly, this.char);
-            default: return createToken(Tokens.Text, this.char);
+                return createToken(Tokens.Text, this.char, this.position);
+            case "{": return createToken(Tokens.LeftSquirly, this.char, this.position);
+            case "}": return createToken(Tokens.RightSquirly, this.char, this.position);
+            default: return createToken(Tokens.Text, this.char, this.position);
         }
     }
 

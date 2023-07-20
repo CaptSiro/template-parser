@@ -5,7 +5,8 @@ import template, { IdentAccessor } from "./template";
 // const t = new TemplateTokenizer("[{BPM}] \\{ {TITLE} \\}");
 // console.log(t.getTokens());
 
-const p = new TemplateParser("[{BPM}] {ARTIST} - {TITLE}", [
+const input = "[{BPM}] {ARTIST} - {TITLE}";
+const p = new TemplateParser(input, [
     "BPM",
     "TITLE",
     "ARTIST"
@@ -14,7 +15,15 @@ const p = new TemplateParser("[{BPM}] {ARTIST} - {TITLE}", [
 const conf = p.getTemplateConfig();
 
 if (conf.type === "error") {
-    console.error(conf.error.message);
+    console.log(conf.error);
+
+    if (conf.error.suggestion !== undefined) {
+        console.log(
+            input.substring(0, conf.error.suggestion.start) +
+            conf.error.suggestion.replacement +
+            input.substring(conf.error.suggestion.end)
+        );
+    }
 } else {
     const accessor: IdentAccessor = ident => {
         return ident[0] + ident.substring(1).toLowerCase();

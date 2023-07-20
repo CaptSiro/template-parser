@@ -1,4 +1,4 @@
-import { Config } from "./parser/TemplateParser";
+import { ConfigItem } from "./parser/TemplateParser";
 
 
 
@@ -6,7 +6,7 @@ export type IdentAccessor = (ident: string) => string;
 
 
 
-export default function template(config: Config, accessor: IdentAccessor): string {
+export default function template(config: ConfigItem[], accessor: IdentAccessor): string {
     let buffer = "";
 
     for (let i = 0; i < config.length; i++) {

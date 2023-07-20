@@ -7,14 +7,20 @@ const TemplateParser_1 = require("./parser/TemplateParser");
 const template_1 = __importDefault(require("./template"));
 // const t = new TemplateTokenizer("[{BPM}] \\{ {TITLE} \\}");
 // console.log(t.getTokens());
-const p = new TemplateParser_1.TemplateParser("[{BPM}] {ARTIST} - {TITLE}", [
+const input = "[{BPM}] {ARTIST} - {TITLE}";
+const p = new TemplateParser_1.TemplateParser(input, [
     "BPM",
     "TITLE",
     "ARTIST"
 ]);
 const conf = p.getTemplateConfig();
 if (conf.type === "error") {
-    console.error(conf.error.message);
+    console.log(conf.error);
+    if (conf.error.suggestion !== undefined) {
+        console.log(input.substring(0, conf.error.suggestion.start) +
+            conf.error.suggestion.replacement +
+            input.substring(conf.error.suggestion.end));
+    }
 }
 else {
     const accessor = ident => {
