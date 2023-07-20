@@ -1,33 +1,50 @@
-import { TemplateTokenizer, Tokens } from "./tokenizer/TemplateTokenizer";
 import { TemplateParser } from "./parser/TemplateParser";
-import template, { IdentAccessor } from "./template";
+import template from "./template";
 
-// const t = new TemplateTokenizer("[{BPM}] \\{ {TITLE} \\}");
-// console.log(t.getTokens());
 
-const input = "[{BPM}] {ARTIST} - {TITLE}";
-const p = new TemplateParser(input, [
-    "BPM",
-    "TITLE",
-    "ARTIST"
-]);
 
-const conf = p.getTemplateConfig();
+function main() {
+    // template defined with placeholders "{placeholder_identifier}"
+    // use backslash '\' to escape bracket (it does not need to be escaped to use it as standalone character)
+    const input = "\\{{USER_NAME}\\}: {USER_EMAIL}\\"
 
-if (conf.type === "error") {
-    console.log(conf.error);
+    // creating a parser object, that takes all identifiers as a second argument
+    const parser = new TemplateParser(input, [
+        "USER_NAME",
+        "USER_EMAIL"
+    ]);
 
-    if (conf.error.suggestion !== undefined) {
-        console.log(
-            input.substring(0, conf.error.suggestion.start) +
-            conf.error.suggestion.replacement +
-            input.substring(conf.error.suggestion.end)
-        );
-    }
-} else {
-    const accessor: IdentAccessor = ident => {
-        return ident[0] + ident.substring(1).toLowerCase();
+    // returns typed object
+    //   type: "error" -> contains error object with a message and optional suggestion
+    //   type: "success" -> contains config object
+    const result = parser.getTemplateConfig();
+
+    if (result.type === "error") {
+        // handle error
+        return;
     }
 
-    console.log(template(conf.config, accessor));
+    // JSON serializable array of objects defining template
+    const config = result.config;
+
+    const user = {
+        name: "CaptSiro",
+        email: "example@email.com",
+        accessor: (identifier: string): string => {
+            switch (identifier) {
+                case "USER_NAME": return user.name;
+                case "USER_EMAIL": return user.email;
+            }
+
+            return "";
+        }
+    };
+
+    const string = template(config, user.accessor);
+
+    console.log(string) // {CaptSiro}: example@gmail.com\
 }
+
+
+
+main();

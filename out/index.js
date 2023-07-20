@@ -5,27 +5,38 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const TemplateParser_1 = require("./parser/TemplateParser");
 const template_1 = __importDefault(require("./template"));
-// const t = new TemplateTokenizer("[{BPM}] \\{ {TITLE} \\}");
-// console.log(t.getTokens());
-const input = "[{BPM}] {ARTIST} - {TITLE}";
-const p = new TemplateParser_1.TemplateParser(input, [
-    "BPM",
-    "TITLE",
-    "ARTIST"
-]);
-const conf = p.getTemplateConfig();
-if (conf.type === "error") {
-    console.log(conf.error);
-    if (conf.error.suggestion !== undefined) {
-        console.log(input.substring(0, conf.error.suggestion.start) +
-            conf.error.suggestion.replacement +
-            input.substring(conf.error.suggestion.end));
+function main() {
+    // template defined with placeholders "{placeholder_identifier}"
+    // use backslash '\' to escape bracket
+    const input = "\\\\{{USER_NAME}\\}: {USER_EMAIL}";
+    // creating a parser object, that takes all identifiers as a second argument
+    const parser = new TemplateParser_1.TemplateParser(input, [
+        "USER_NAME",
+        "USER_EMAIL"
+    ]);
+    // returns typed object
+    //   type: "error" -> contains error object with a message and optional suggestion
+    //   type: "success" -> contains config object
+    const result = parser.getTemplateConfig();
+    if (result.type === "error") {
+        // handle error
+        return;
     }
-}
-else {
-    const accessor = ident => {
-        return ident[0] + ident.substring(1).toLowerCase();
+    // JSON serializable array of objects defining template
+    const config = result.config;
+    const user = {
+        name: "CaptSiro",
+        email: "example@email.com",
+        accessor: (identifier) => {
+            switch (identifier) {
+                case "USER_NAME": return user.name;
+                case "USER_EMAIL": return user.email;
+            }
+            return "";
+        }
     };
-    console.log((0, template_1.default)(conf.config, accessor));
+    const string = (0, template_1.default)(config, user.accessor);
+    console.log(string); // {CaptSiro}: example@gmail.com
 }
+main();
 //# sourceMappingURL=index.js.map
