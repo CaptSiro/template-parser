@@ -1,7 +1,6 @@
 export const Tokens = {
     Illegal: "ILLEGAL",
     EOF: "EOF",
-    EscapeChar: "\\",
     LeftSquirly: "{",
     RightSquirly: "}",
     Text: "TEXT"
